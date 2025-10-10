@@ -10,4 +10,3 @@ struct URLMacroPlugin: CompilerPlugin {
 }
 
 #endif
-

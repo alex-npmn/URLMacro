@@ -38,9 +38,14 @@ public struct URLMacro: ExpressionMacro {
     of node: some FreestandingMacroExpansionSyntax,
     in context: some MacroExpansionContext
   ) throws -> ExprSyntax {
-    guard
-      let argExpr = node.arguments.first?.expression
-    else {
+    // SwiftSyntax 601+ uses 'arguments', earlier versions use 'argumentList'
+    #if canImport(SwiftSyntax601)
+    let argExpr = node.arguments.first?.expression
+    #else
+    let argExpr = node.argumentList.first?.expression
+    #endif
+    
+    guard let argExpr else {
       context.diagnose(Diagnostic(node: Syntax(node), message: URLDiag.NotStringLiteral()))
       return "Foundation.URL(string: \"\")!"
     }

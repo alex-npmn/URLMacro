@@ -75,6 +75,10 @@ The macro ensures:
 - ✅ URL has a valid host (except for file:// URLs)
 - ✅ Only string literals are allowed (no interpolation)
 
+## Compatibility
+
+This package supports **SwiftSyntax 509-601** (Swift 5.9-6.1) to maximize compatibility with other packages and minimize dependency conflicts.
+
 ## License
 
 URLMacro is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
