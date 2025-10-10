@@ -208,4 +208,3 @@ final class URLMacroTests: XCTestCase {
    These errors are caught at compile-time, making URL usage safer.
    */
 }
-

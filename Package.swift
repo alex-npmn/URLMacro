@@ -19,7 +19,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-syntax.git", from: "601.0.1"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", exact: "601.0.1"),
   ],
   targets: [
     .target(
@@ -46,7 +46,8 @@ let package = Package(
       dependencies: [
         "URLMacro",
         // host-only diagnostics helpers are conditionally imported in tests
-        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax", condition: .when(platforms: [.macOS]))
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax", condition: .when(platforms: [.macOS])),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax", condition: .when(platforms: [.macOS]))
       ]
     ),
   ]

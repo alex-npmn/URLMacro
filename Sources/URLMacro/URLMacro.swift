@@ -9,4 +9,3 @@ import Foundation
 @freestanding(expression)
 public macro URL(_ string: StaticString) -> Foundation.URL =
 #externalMacro(module: "URLMacroPlugin", type: "URLMacro")
-
