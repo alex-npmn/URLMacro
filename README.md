@@ -2,54 +2,80 @@
 
 A Swift macro that provides compile-time URL validation with `#URL("…")` syntax.
 
+[![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
+[![Platforms](https://img.shields.io/badge/Platforms-iOS%20|%20macOS%20|%20tvOS%20|%20watchOS-lightgrey.svg)](https://github.com/alex-npmn/URLMacro)
+[![Swift Package Manager](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
+
+## Features
+
+✅ **Compile-time URL validation** - catch invalid URLs at build time, not runtime  
+✅ **Zero runtime overhead** - expands to simple `URL(string:)!` calls  
+✅ **Clear error messages** - descriptive compiler errors for invalid URLs  
+✅ **Cross-platform** - works on iOS, macOS, tvOS, watchOS  
+
 ## Usage
 
 ```swift
 import URLMacro
 
-let url = #URL("https://www.apple.com")
-```
+// ✅ Valid URLs - compile successfully
+let apple = #URL("https://www.apple.com")
+let github = #URL("https://github.com/user/repo")
+let file = #URL("file:///tmp/document.pdf")
 
-This will automatically generate the following code:
-
-```swift
-URL(string: "https://www.apple.com")!
+// ❌ Invalid URLs - compile-time errors
+let invalid = #URL("not-a-url")            // Error: Invalid URL
+let empty = #URL("")                       // Error: URL must not be empty
+let interpolated = #URL("https://\(host)") // Error: String interpolation not allowed
 ```
 
 ## Installation
 
-Using Swift Package Manager in Xcode: File → Add Packages… → введите URL репозитория и выберите продукт `URLMacro` для вашего App target (плагин добавлять не нужно).
+### Swift Package Manager
 
-В `Package.swift` другого пакета:
+#### Xcode
+1. File → Add Package Dependencies
+2. Enter: `https://github.com/alex-npmn/URLMacro.git`
+3. Add `URLMacro` to your target
 
+#### Package.swift
 ```swift
-.package(url: "https://github.com/your-repo/URLMacro.git", from: "1.0.0"),
-.target(name: "YourApp", dependencies: [
-  .product(name: "URLMacro", package: "URLMacro")
-])
+dependencies: [
+    .package(url: "https://github.com/alex-npmn/URLMacro.git", from: "1.0.0")
+],
+targets: [
+    .target(name: "YourApp", dependencies: [
+        .product(name: "URLMacro", package: "URLMacro")
+    ])
+]
 ```
 
 ## Requirements
 
-- Xcode 15+/Swift 5.9+
-- iOS 15.0+, macOS 12.0+, tvOS 15.0+, watchOS 8.0+
+- **Swift 5.9+** (Xcode 15+)
+- **iOS 15.0+** / **macOS 12.0+** / **tvOS 15.0+** / **watchOS 8.0+**
 
-## Validation
+## How it works
 
-The macro performs compile-time validation to ensure:
+The `#URL` macro validates URLs at compile time and expands to regular `Foundation.URL` calls:
 
-- The URL string is not empty
-- The URL has a valid scheme (http, https, file, etc.)
-- The URL has a valid host (except for file:// URLs)
-- String interpolation is not allowed
+```swift
+// This code:
+let url = #URL("https://example.com")
 
-Invalid URLs will produce compile-time errors with descriptive messages. The macro runs on the host (macOS) during compilation; in iOS/macOS binaries остаётся только сгенерированный код.
+// Becomes:
+let url = Foundation.URL(string: "https://example.com")!
+```
 
-## Example iOS App
+## Validation Rules
 
-Минимальный пример см. в каталоге `Examples/App` (simple SwiftUI app, использует `#URL("https://example.com")`).
+The macro ensures:
+- ✅ URL string is not empty
+- ✅ URL has a valid scheme (http, https, file, etc.)  
+- ✅ URL has a valid host (except for file:// URLs)
+- ✅ Only string literals are allowed (no interpolation)
 
 ## License
 
-`URLMacro` is available under the MIT license. See the LICENSE file for more info.
+URLMacro is available under the MIT license. See the [LICENSE](LICENSE) file for more info.
 

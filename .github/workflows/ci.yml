@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-13, macos-14]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
+      if: matrix.os == 'macos-13'
+    
+    - name: Cache Swift packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          ~/.cache/org.swift.swiftpm
+        key: ${{ runner.os }}-swift-${{ hashFiles('Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-
+    
+    - name: Build
+      run: swift build --configuration debug
+    
+    - name: Run tests
+      run: swift test --parallel
+    
+    - name: Build release
+      run: swift build --configuration release
+
+  validate-spm:
+    name: Validate SPM integration
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: URLMacro
+    
+    - name: Create test package
+      run: |
+        mkdir TestIntegration
+        cd TestIntegration
+        cat > Package.swift << 'EOF'
+        // swift-tools-version: 5.9
+        import PackageDescription
+        
+        let package = Package(
+            name: "TestIntegration",
+            platforms: [.macOS(.v12)],
+            dependencies: [
+                .package(path: "../URLMacro")
+            ],
+            targets: [
+                .executableTarget(
+                    name: "TestIntegration",
+                    dependencies: [
+                        .product(name: "URLMacro", package: "URLMacro")
+                    ]
+                )
+            ]
+        )
+        EOF
+        
+        mkdir Sources/TestIntegration
+        cat > Sources/TestIntegration/main.swift << 'EOF'
+        import URLMacro
+        
+        let url = #URL("https://www.apple.com")
+        print("✅ URLMacro integration test passed: \(url)")
+        EOF
+    
+    - name: Test integration
+      run: |
+        cd TestIntegration
+        swift build
+        swift run
