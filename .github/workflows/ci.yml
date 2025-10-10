@@ -73,8 +73,9 @@ jobs:
         )
         EOF
         
-        mkdir Sources/TestIntegration
+        mkdir -p Sources/TestIntegration
         cat > Sources/TestIntegration/main.swift << 'EOF'
+        import Foundation
         import URLMacro
         
         let url = #URL("https://www.apple.com")
